@@ -1,8 +1,10 @@
-import Telegraf from "telegraf";
-import schedule from "node-schedule";
-import mongoose from "mongoose";
 import dotenv from "dotenv";
+import mongoose from "mongoose";
+import schedule from "node-schedule";
+import Telegraf from "telegraf";
 import "./models";
+import { getPlan } from "./services/plan";
+import { isToday } from "./utils/compareDates";
 
 dotenv.config();
 
@@ -36,11 +38,17 @@ mongoose.connection.once("connected", () => {
 
   app.launch();
 
-  schedule.scheduleJob("5 * * * * *", async () => {
+  schedule.scheduleJob("8 * * * *", async () => {
+    const plan = await getPlan();
+    const todaysChapter = plan.find(day => isToday(day.date));
+
     const chats = await Chat.find().exec();
 
     chats.forEach(chat => {
-      app.telegram.sendMessage(chat.id, "hi");
+      app.telegram.sendMessage(
+        chat.id,
+        `https://www.bible.com/ru/bible/400/${todaysChapter.book}.${todaysChapter.chapter}.SYNO`
+      );
     });
   });
 });

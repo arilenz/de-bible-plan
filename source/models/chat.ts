@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { DEFAUL_TRANSLATION } from "../constants";
 
 mongoose.model("Chat", {
   id: {
@@ -15,5 +16,10 @@ mongoose.model("Chat", {
   firstName: String,
   lastName: String,
   userName: String,
-  title: String
+  title: String,
+  translation: {
+    type: String,
+    default: DEFAUL_TRANSLATION,
+    required: true
+  }
 });

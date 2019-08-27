@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import schedule from "node-schedule";
 import Telegraf from "telegraf";
+import { DEFAUL_TRANSLATION, TRANSLATIONS } from "./constants";
 import "./models";
 import { getPlan } from "./services/plan";
 import { isToday } from "./utils/compareDates";
@@ -30,7 +31,9 @@ app.start(async context => {
     await chat.save();
   }
 
-  context.reply("Welcome");
+  context.reply(
+    "Welcome to Bible reading bot\nYou can set up preferred translation using /translation"
+  );
 });
 
 mongoose.connection.once("connected", () => {
@@ -38,16 +41,51 @@ mongoose.connection.once("connected", () => {
 
   app.launch();
 
-  schedule.scheduleJob("8 * * * *", async () => {
+  app.command("translation", context =>
+    context.reply("Choose translation", {
+      reply_markup: {
+        inline_keyboard: Object.keys(TRANSLATIONS).map(translation => [
+          {
+            text: TRANSLATIONS[translation].name,
+            callback_data: `updateTranslation/${translation}`
+          }
+        ])
+      }
+    })
+  );
+
+  app.on("callback_query", async context => {
+    const [action, ...params] = context.update.callback_query.data.split("/");
+    const chatId = context.update.callback_query.from.id;
+
+    switch (action) {
+      case "updateTranslation":
+        if (params[0] && TRANSLATIONS[params[0]]) {
+          let chat = await Chat.findOne({ id: chatId }).exec();
+          chat.translation = params[0];
+          await chat.save();
+
+          return context.reply(`Your translations is now "${TRANSLATIONS[params[0]].name}"`);
+        }
+      default:
+        return context.reply("Something went wrong. Try again later");
+    }
+  });
+
+  schedule.scheduleJob("* 5 * * *", async () => {
     const plan = await getPlan();
     const todaysChapter = plan.find(day => isToday(day.date));
 
     const chats = await Chat.find().exec();
 
     chats.forEach(chat => {
+      const translationCode = TRANSLATIONS[chat.translation]
+        ? TRANSLATIONS[chat.translation].code
+        : TRANSLATIONS[DEFAUL_TRANSLATION].code;
+
       app.telegram.sendMessage(
         chat.id,
-        `https://www.bible.com/ru/bible/400/${todaysChapter.book}.${todaysChapter.chapter}.SYNO`
+        `https://www.bible.com/ru/bible/${translationCode}/${todaysChapter.book}.${todaysChapter.chapter}`
       );
     });
   });

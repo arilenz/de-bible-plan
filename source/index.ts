@@ -6,6 +6,7 @@ import { DEFAUL_TRANSLATION, TRANSLATIONS } from "./constants";
 import "./models";
 import { getPlan } from "./services/plan";
 import { isToday } from "./utils/compareDates";
+import express from "express";
 
 dotenv.config();
 
@@ -89,4 +90,14 @@ mongoose.connection.once("connected", () => {
       );
     });
   });
+});
+
+// Run express app to prevent process termination on heroku
+const expressApp = express();
+expressApp.get("/", (_, res) => {
+  res.send("Hello World!");
+});
+const PORT = process.env.PORT || 3000;
+expressApp.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

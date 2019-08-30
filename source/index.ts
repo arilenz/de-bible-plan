@@ -33,7 +33,13 @@ app.start(async context => {
   }
 
   context.reply(
-    "Welcome to Bible reading bot\nYou can set up preferred translation using /translation"
+    `Ласкаво просимо до бота читтання Біблії за планом церкви Дім Євангелія
+
+Кожного дня о 8й ранку бот надсилатиме Вам текст із Біблії (в перекладі Івана Огієнка)
+
+Ви можете обрати інший переклад за допомогою команди /translation
+
+Enjoy  🎉`
   );
 });
 
@@ -43,7 +49,7 @@ mongoose.connection.once("connected", () => {
   app.launch();
 
   app.command("translation", context =>
-    context.reply("Choose translation", {
+    context.reply("Оберіть переклад", {
       reply_markup: {
         inline_keyboard: Object.keys(TRANSLATIONS).map(translation => [
           {
@@ -66,10 +72,10 @@ mongoose.connection.once("connected", () => {
           chat.translation = params[0];
           await chat.save();
 
-          return context.reply(`Your translations is now "${TRANSLATIONS[params[0]].name}"`);
+          return context.reply(`Переклад змінено на "${TRANSLATIONS[params[0]].name}"`);
         }
       default:
-        return context.reply("Something went wrong. Try again later");
+        return context.reply("Щось пішно не так, спробуйте ще раз пізніше");
     }
   });
 

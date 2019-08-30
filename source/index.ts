@@ -77,6 +77,8 @@ mongoose.connection.once("connected", () => {
     const plan = await getPlan();
     const todaysChapter = plan.find(day => isToday(day.date));
 
+    if (!todaysChapter || !todaysChapter.book || !todaysChapter.chapter) return null;
+
     const chats = await Chat.find().exec();
 
     chats.forEach(chat => {

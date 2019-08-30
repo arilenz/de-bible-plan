@@ -73,7 +73,7 @@ mongoose.connection.once("connected", () => {
     }
   });
 
-  schedule.scheduleJob("* 5 * * *", async () => {
+  schedule.scheduleJob("0 5 * * *", async () => {
     const plan = await getPlan();
     const todaysChapter = plan.find(day => isToday(day.date));
 

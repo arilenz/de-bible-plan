@@ -92,10 +92,14 @@ mongoose.connection.once("connected", () => {
         ? TRANSLATIONS[chat.translation].code
         : TRANSLATIONS[DEFAUL_TRANSLATION].code;
 
-      app.telegram.sendMessage(
-        chat.id,
-        `https://www.bible.com/ru/bible/${translationCode}/${todaysChapter.book}.${todaysChapter.chapter}`
-      );
+      const chapters = todaysChapter.chapter.split("-")
+
+      chapters.forEach((chapter) => {
+        app.telegram.sendMessage(
+          chat.id,
+          `https://www.bible.com/ru/bible/${translationCode}/${todaysChapter.book}.${chapter}`
+        );
+      });
     });
   });
 });

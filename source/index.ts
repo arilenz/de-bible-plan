@@ -97,7 +97,11 @@ mongoose.connection.once("connected", () => {
       chapters.forEach((chapter) => {
         app.telegram.sendMessage(
           chat.id,
-          `https://www.bible.com/ru/bible/${translationCode}/${todaysChapter.book}.${chapter}`
+          `${
+            todaysChapter.comment ? todaysChapter.comment + "\n\n" : ""
+          }https://www.bible.com/ru/bible/${translationCode}/${
+            todaysChapter.book
+          }.${chapter}`
         );
       });
     });

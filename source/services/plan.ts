@@ -9,7 +9,8 @@ export async function getPlan(): Promise<PlanRow[]> {
   const plan = data.valueRanges[0].values.map(row => ({
     date: new Date(row[4]),
     book: row[3],
-    chapter: row[2]
+    chapter: row[2],
+    comment: row[5]
   }));
 
   return plan;
